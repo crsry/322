@@ -365,7 +365,8 @@ public class CourseOutlineAdapter extends BaseAdapter {
         }
 
         if (isDenialFeatureBasedEnrolments) {
-            if (environment.getAppFeaturesPrefs().isValuePropEnabled() && courseData.isAuditMode()) {
+            if (environment.getAppFeaturesPrefs().isValuePropEnabled() && courseData.isAuditMode()
+                    && !courseData.getCourse().isUpgradeDeadlinePassed()) {
                 viewHolder.rowSubtitle.setText(org.edx.mobile.util.TextUtils.underline(
                         context,
                         R.string.course_modal_unlock_graded_assignment
@@ -630,7 +631,8 @@ public class CourseOutlineAdapter extends BaseAdapter {
         final View upgradeBtn = view.findViewById(R.id.layout_upgrade_btn);
         final MaterialButton upgradeBtnText = upgradeBtn.findViewById(R.id.btn_upgrade);
 
-        if (courseData.isAuditMode() && environment.getAppFeaturesPrefs().isValuePropEnabled()) {
+        if (courseData.isAuditMode() && !courseData.getCourse().isUpgradeDeadlinePassed() &&
+                environment.getAppFeaturesPrefs().isValuePropEnabled()) {
             upgradeBtn.setVisibility(View.VISIBLE);
             ((ShimmerFrameLayout) upgradeBtn).hideShimmer();
             upgradeBtnText.setOnClickListener(view1 -> CourseModalDialogFragment.newInstance(

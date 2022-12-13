@@ -18,6 +18,7 @@ import org.edx.mobile.extenstion.setImageDrawable
 import org.edx.mobile.extenstion.setVisibility
 import org.edx.mobile.http.HttpStatus
 import org.edx.mobile.model.api.AuthorizationDenialReason
+import org.edx.mobile.model.api.CourseEntry
 import org.edx.mobile.model.course.CourseComponent
 import org.edx.mobile.module.analytics.Analytics
 import org.edx.mobile.module.analytics.Analytics.Events
@@ -58,8 +59,9 @@ class CourseUnitMobileNotSupportedFragment : CourseUnitFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val isUpgradeDeadlinePassed = getBooleanArgument(EXTRA_IS_UPGRADE_DEADLINE_PASSED, true)
         if (AuthorizationDenialReason.FEATURE_BASED_ENROLLMENTS == unit?.authorizationDenialReason) {
-            if (environment.appFeaturesPrefs.isValuePropEnabled()) {
+            if (environment.appFeaturesPrefs.isValuePropEnabled() && !isUpgradeDeadlinePassed) {
                 showGradedContent()
             } else {
                 showNotAvailableOnMobile(isLockedContent = true)
@@ -247,8 +249,9 @@ class CourseUnitMobileNotSupportedFragment : CourseUnitFragment() {
     override fun onResume() {
         super.onResume()
         unit?.let {
+            val isUpgradeDeadlinePassed = getBooleanArgument(EXTRA_IS_UPGRADE_DEADLINE_PASSED, true)
             if (it.authorizationDenialReason == AuthorizationDenialReason.FEATURE_BASED_ENROLLMENTS
-                && environment.appFeaturesPrefs.isValuePropEnabled()
+                && environment.appFeaturesPrefs.isValuePropEnabled() && !isUpgradeDeadlinePassed
             ) {
                 environment.analyticsRegistry.trackLockedContentTapped(it.courseId, it.blockId)
             }
@@ -256,15 +259,18 @@ class CourseUnitMobileNotSupportedFragment : CourseUnitFragment() {
     }
 
     companion object {
+        private const val EXTRA_IS_UPGRADE_DEADLINE_PASSED = "is_upgrade_deadline_passed"
+
         @JvmStatic
         fun newInstance(
             unit: CourseComponent,
-            isSelfPaced: Boolean,
+            course: CourseEntry,
         ): CourseUnitMobileNotSupportedFragment {
             val fragment = CourseUnitMobileNotSupportedFragment()
             val args = Bundle()
             args.putSerializable(Router.EXTRA_COURSE_UNIT, unit)
-            args.putBoolean(Router.EXTRA_IS_SELF_PACED, isSelfPaced)
+            args.putBoolean(Router.EXTRA_IS_SELF_PACED, course.isSelfPaced)
+            args.putBoolean(EXTRA_IS_UPGRADE_DEADLINE_PASSED, course.isUpgradeDeadlinePassed)
             fragment.arguments = args
             return fragment
         }
