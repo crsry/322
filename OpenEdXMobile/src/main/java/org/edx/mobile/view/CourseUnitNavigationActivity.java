@@ -441,9 +441,8 @@ public class CourseUnitNavigationActivity extends CourseBaseActivity implements
         // To proceed with the same instance of dialog fragment in case of orientation change
         this.fullScreenLoader = (FullscreenLoaderDialogFragment) getSupportFragmentManager().findFragmentByTag(FullscreenLoaderDialogFragment.TAG);
         if (this.fullScreenLoader == null) {
-            this.fullScreenLoader = FullscreenLoaderDialogFragment.newInstance();
+            this.fullScreenLoader = FullscreenLoaderDialogFragment.newInstance(iapFlowData);
         }
-        fullScreenLoader.setData(iapFlowData);
         fullScreenLoader.show(getSupportFragmentManager(), FullscreenLoaderDialogFragment.TAG);
     }
 

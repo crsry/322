@@ -33,6 +33,7 @@ import org.edx.mobile.util.InAppPurchasesException
 import org.edx.mobile.util.NetworkUtil
 import org.edx.mobile.util.NonNullObserver
 import org.edx.mobile.util.UiUtils
+import org.edx.mobile.util.observer.EventObserver
 import org.edx.mobile.view.adapters.MyCoursesAdapter
 import org.edx.mobile.view.dialog.CourseModalDialogFragment
 import org.edx.mobile.view.dialog.FullscreenLoaderDialogFragment
@@ -140,7 +141,10 @@ class MyCoursesListFragment : OfflineSupportBaseFragment(), RefreshListener {
             viewLifecycleOwner,
             NonNullObserver { enrolledCourses ->
                 populateCourseData(data = enrolledCourses)
-                if (environment.appFeaturesPrefs.isIAPEnabled(environment.loginPrefs.isOddUserId)) {
+                if (courseViewModel.isRemoteRequestType() == environment.appFeaturesPrefs.isIAPEnabled(
+                        environment.loginPrefs.isOddUserId
+                    )
+                ) {
                     initInAppPurchaseSetup()
                     iapViewModel.detectUnfulfilledPurchase(
                         environment.loginPrefs.userId,
@@ -192,7 +196,8 @@ class MyCoursesListFragment : OfflineSupportBaseFragment(), RefreshListener {
                 showFullscreenLoader(iapFlowData)
             }, { _, _ -> })
         })
-        iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
+
+        iapViewModel.errorMessage.observe(viewLifecycleOwner, EventObserver { errorMessage ->
             var cancelListener: DialogInterface.OnClickListener? = null
             if (errorMessage.isPostUpgradeErrorType().not()) {
                 cancelListener =
@@ -291,9 +296,8 @@ class MyCoursesListFragment : OfflineSupportBaseFragment(), RefreshListener {
         fullscreenLoader = try {
             childFragmentManager.findFragmentByTag(FullscreenLoaderDialogFragment.TAG) as FullscreenLoaderDialogFragment
         } catch (e: Exception) {
-            FullscreenLoaderDialogFragment.newInstance()
+            FullscreenLoaderDialogFragment.newInstance(iapFlowData)
         }
-        fullscreenLoader?.setData(iapFlowData)
         fullscreenLoader?.show(childFragmentManager, FullscreenLoaderDialogFragment.TAG)
     }
 

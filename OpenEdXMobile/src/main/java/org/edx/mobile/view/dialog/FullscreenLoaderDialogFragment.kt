@@ -22,6 +22,7 @@ import org.edx.mobile.module.analytics.Analytics
 import org.edx.mobile.module.analytics.InAppPurchasesAnalytics
 import org.edx.mobile.util.InAppPurchasesException
 import org.edx.mobile.util.NonNullObserver
+import org.edx.mobile.util.observer.EventObserver
 import org.edx.mobile.viewModel.InAppPurchasesViewModel
 import org.edx.mobile.wrapper.InAppPurchasesDialog
 import org.greenrobot.eventbus.EventBus
@@ -68,7 +69,8 @@ class FullscreenLoaderDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, args: Bundle?) {
         super.onViewCreated(view, args)
-        loaderStartTime = args?.getLong(LOADER_START_TIME, Calendar.getInstance().timeInMillis)
+        iapFlowData = arguments?.getSerializable(KEY_IAP_DATA) as IAPFlowData?
+        loaderStartTime = arguments?.getLong(LOADER_START_TIME, Calendar.getInstance().timeInMillis)
             ?: Calendar.getInstance().timeInMillis
         intiViews()
         initObservers()
@@ -82,10 +84,7 @@ class FullscreenLoaderDialogFragment : DialogFragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putLong(LOADER_START_TIME, loaderStartTime)
-    }
-
-    fun setData(iapData: IAPFlowData) {
-        this.iapFlowData = iapData
+        outState.putSerializable(KEY_IAP_DATA, iapFlowData)
     }
 
     private fun intiViews() {
@@ -96,7 +95,8 @@ class FullscreenLoaderDialogFragment : DialogFragment() {
         iapViewModel.refreshCourseData.observe(viewLifecycleOwner, NonNullObserver {
             closeLoader()
         })
-        iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
+
+        iapViewModel.errorMessage.observe(viewLifecycleOwner, EventObserver { errorMessage ->
             if (errorMessage.isPostUpgradeErrorType()) {
                 errorMessage.throwable as InAppPurchasesException
                 iapDialog.handleIAPException(
@@ -160,10 +160,15 @@ class FullscreenLoaderDialogFragment : DialogFragment() {
         const val TAG = "FULLSCREEN_LOADER"
         private const val LOADER_START_TIME = "LOADER_START_TIME"
         const val MINIMUM_DISPLAY_DELAY: Long = 3_000
+        private const val KEY_IAP_DATA = "iap_flow_data"
 
         @JvmStatic
-        fun newInstance(): FullscreenLoaderDialogFragment {
-            return FullscreenLoaderDialogFragment()
+        fun newInstance(iapData: IAPFlowData): FullscreenLoaderDialogFragment {
+            val bundle = Bundle()
+            bundle.putSerializable(KEY_IAP_DATA, iapData)
+            val fragment = FullscreenLoaderDialogFragment()
+            fragment.arguments = bundle
+            return fragment
         }
     }
 }

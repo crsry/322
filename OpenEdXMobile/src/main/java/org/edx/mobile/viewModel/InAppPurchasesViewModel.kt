@@ -52,8 +52,8 @@ class InAppPurchasesViewModel @Inject constructor(
     private val _showLoader = MutableLiveData<Event<Boolean>>()
     val showLoader: LiveData<Event<Boolean>> = _showLoader
 
-    private val _errorMessage = MutableLiveData<ErrorMessage?>()
-    val errorMessage: LiveData<ErrorMessage?> = _errorMessage
+    private val _errorMessage = MutableLiveData<Event<ErrorMessage>>()
+    val errorMessage: LiveData<Event<ErrorMessage>> = _errorMessage
 
     var iapFlowData = IAPFlowData()
     private var incompletePurchases: MutableList<Pair<String, String>> = arrayListOf()
@@ -210,6 +210,7 @@ class InAppPurchasesViewModel @Inject constructor(
         }
         billingProcessor.queryPurchase { _, purchases ->
             if (purchases.isEmpty()) {
+                _fakeUnfulfilledCompletion.postValue(true)
                 return@queryPurchase
             }
             val purchasesList =
@@ -265,9 +266,9 @@ class InAppPurchasesViewModel @Inject constructor(
             }
         }
         if (throwable != null && throwable is InAppPurchasesException) {
-            _errorMessage.postValue(ErrorMessage(requestType = requestType, throwable = throwable))
+            _errorMessage.postEvent(ErrorMessage(requestType = requestType, throwable = throwable))
         } else {
-            _errorMessage.postValue(
+            _errorMessage.postEvent(
                 ErrorMessage(
                     requestType = requestType,
                     throwable = InAppPurchasesException(errorMessage = actualErrorMessage)
@@ -282,10 +283,5 @@ class InAppPurchasesViewModel @Inject constructor(
 
     fun endLoading() {
         _showLoader.postEvent(false)
-    }
-
-    override fun onCleared() {
-        billingProcessor.disconnect()
-        super.onCleared()
     }
 }

@@ -150,7 +150,7 @@ class CourseModalDialogFragment : DialogFragment() {
             enableUpgradeButton(!it)
         })
 
-        iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
+        iapViewModel.errorMessage.observe(viewLifecycleOwner, EventObserver { errorMessage ->
             handleIAPException(errorMessage)
         })
 

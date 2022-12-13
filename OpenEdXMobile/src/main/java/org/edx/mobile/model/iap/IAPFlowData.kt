@@ -1,12 +1,14 @@
 package org.edx.mobile.model.iap
 
+import java.io.Serializable
+
 data class IAPFlowData(
     var upgradeMode: UpgradeMode = UpgradeMode.NORMAL,
     var productId: String = "",
     var basketId: Long = 0,
     var purchaseToken: String = "",
     var isVerificationPending: Boolean = false
-) {
+) : Serializable {
     fun clear() {
         upgradeMode = UpgradeMode.NORMAL
         productId = ""

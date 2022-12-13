@@ -303,9 +303,8 @@ public class CourseOutlineFragment extends OfflineSupportBaseFragment
         // To proceed with the same instance of dialog fragment in case of orientation change
         this.fullscreenLoader = (FullscreenLoaderDialogFragment) getChildFragmentManager().findFragmentByTag(FullscreenLoaderDialogFragment.TAG);
         if (this.fullscreenLoader == null) {
-            this.fullscreenLoader = FullscreenLoaderDialogFragment.newInstance();
+            this.fullscreenLoader = FullscreenLoaderDialogFragment.newInstance(iapFlowData);
         }
-        fullscreenLoader.setData(iapFlowData);
         fullscreenLoader.show(getChildFragmentManager(), FullscreenLoaderDialogFragment.TAG);
     }
 

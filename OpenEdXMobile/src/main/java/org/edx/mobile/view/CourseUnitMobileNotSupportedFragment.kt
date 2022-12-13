@@ -23,7 +23,10 @@ import org.edx.mobile.module.analytics.Analytics
 import org.edx.mobile.module.analytics.Analytics.Events
 import org.edx.mobile.module.analytics.Analytics.Screens
 import org.edx.mobile.module.analytics.InAppPurchasesAnalytics
-import org.edx.mobile.util.*
+import org.edx.mobile.util.AppConstants
+import org.edx.mobile.util.BrowserUtil
+import org.edx.mobile.util.InAppPurchasesException
+import org.edx.mobile.util.ResourceUtil
 import org.edx.mobile.util.observer.EventObserver
 import org.edx.mobile.viewModel.InAppPurchasesViewModel
 import org.edx.mobile.wrapper.InAppPurchasesDialog
@@ -173,7 +176,7 @@ class CourseUnitMobileNotSupportedFragment : CourseUnitFragment() {
             enableUpgradeButton(!it)
         })
 
-        iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
+        iapViewModel.errorMessage.observe(viewLifecycleOwner, EventObserver { errorMessage ->
             handleIAPException(errorMessage)
         })
     }
@@ -251,7 +254,7 @@ class CourseUnitMobileNotSupportedFragment : CourseUnitFragment() {
 
     @Subscribe
     fun onEventMainThread(event: IAPFlowEvent) {
-        if (!isVisible && event.flowAction == IAPAction.PURCHASE_FLOW_COMPLETE) {
+        if (isVisible && event.flowAction == IAPAction.PURCHASE_FLOW_COMPLETE) {
             unit?.let { updateCourseUnit(it.courseId, it.id) }
         }
     }

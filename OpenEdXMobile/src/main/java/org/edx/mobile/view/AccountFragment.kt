@@ -34,8 +34,8 @@ import org.edx.mobile.module.prefs.PrefManager
 import org.edx.mobile.user.UserAPI.AccountDataUpdatedCallback
 import org.edx.mobile.user.UserService
 import org.edx.mobile.util.*
+import org.edx.mobile.util.observer.EventObserver
 import org.edx.mobile.view.dialog.*
-import org.edx.mobile.view.dialog.FullscreenLoaderDialogFragment.Companion.newInstance
 import org.edx.mobile.viewModel.CourseViewModel
 import org.edx.mobile.viewModel.InAppPurchasesViewModel
 import org.edx.mobile.wrapper.InAppPurchasesDialog
@@ -181,7 +181,8 @@ class AccountFragment : BaseFragment() {
                 iapDialog.showNoUnFulfilledPurchasesDialog(this)
             }
         }
-        iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
+
+        iapViewModel.errorMessage.observe(viewLifecycleOwner, EventObserver { errorMessage ->
             loaderDialog?.dismiss()
             var cancelListener: DialogInterface.OnClickListener? = null
             if (errorMessage.isPostUpgradeErrorType()) {
@@ -208,9 +209,9 @@ class AccountFragment : BaseFragment() {
         var fullScreenLoader =
             childFragmentManager.findFragmentByTag(FullscreenLoaderDialogFragment.TAG) as FullscreenLoaderDialogFragment?
         if (fullScreenLoader == null) {
-            fullScreenLoader = newInstance()
+            fullScreenLoader =
+                FullscreenLoaderDialogFragment.newInstance(iapData = iapViewModel.iapFlowData)
         }
-        fullScreenLoader.setData(iapData = iapViewModel.iapFlowData)
         fullScreenLoader.show(childFragmentManager, FullscreenLoaderDialogFragment.TAG)
     }
 
@@ -431,7 +432,7 @@ class AccountFragment : BaseFragment() {
     @Subscribe
     @SuppressWarnings("unused")
     fun onEventMainThread(event: IAPFlowEvent) {
-        if (!this.isVisible && event.flowAction == IAPFlowData.IAPAction.PURCHASE_FLOW_COMPLETE) {
+        if (this.isVisible && event.flowAction == IAPFlowData.IAPAction.PURCHASE_FLOW_COMPLETE) {
             EventBus.getDefault().post(MainDashboardRefreshEvent())
             requireActivity().finish()
         }

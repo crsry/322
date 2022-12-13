@@ -12,8 +12,7 @@ import org.edx.mobile.model.api.EnrolledCoursesResponse
 import org.edx.mobile.model.api.EnrollmentResponse
 import org.edx.mobile.module.db.DataCallback
 import org.edx.mobile.repository.CourseRepository
-import org.edx.mobile.viewModel.CourseViewModel.CoursesRequestType.CACHE
-import org.edx.mobile.viewModel.CourseViewModel.CoursesRequestType.STALE
+import org.edx.mobile.viewModel.CourseViewModel.CoursesRequestType.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +21,7 @@ class CourseViewModel @Inject constructor(
     private val courseRepository: CourseRepository,
 ) : ViewModel() {
 
+    private var requestType: CoursesRequestType = CACHE
     private val logger: Logger = Logger(CourseViewModel::class.java.simpleName)
 
     private val _enrolledCourses = MutableLiveData<List<EnrolledCoursesResponse>>()
@@ -38,6 +38,7 @@ class CourseViewModel @Inject constructor(
         showProgress: Boolean = true
     ) {
         _showProgress.postValue(showProgress)
+        this.requestType = type
         courseRepository.fetchEnrolledCourses(
             type = type,
             callback = object : NetworkResponseCallback<EnrollmentResponse> {
@@ -88,6 +89,15 @@ class CourseViewModel @Inject constructor(
             //Delete all videos which are marked as Deactivated in the database
             environment.storage?.deleteAllUnenrolledVideos()
         }
+    }
+
+    fun isRemoteRequestType(): Boolean {
+        return requestType == LIVE || requestType == STALE
+    }
+
+    override fun onCleared() {
+        requestType = CACHE
+        super.onCleared()
     }
 
     sealed class CoursesRequestType {
