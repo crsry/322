@@ -1,5 +1,62 @@
-API_HOST_URL: 'http://10.0.2.2:8000' # localhost is 10.0.2.2 in Android
-ENVIRONMENT_DISPLAY_NAME: 'Localhost'
-PLATFORM_NAME: 'Your platform name here'
-PLATFORM_DESTINATION_NAME: 'example.com'
-FEEDBACK_EMAIL_ADDRESS: 'support@example.com'
+API_HOST_URL: 'https://coursery.co/'
+ENVIRONMENT_DISPLAY_NAME: ''
+PLATFORM_NAME: 'coursery'
+PHONETIC_PLATFORM_NAME: 'COURSERY'
+PLATFORM_DESTINATION_NAME: 'coursery.co'
+FEEDBACK_EMAIL_ADDRESS: 'mobile-support@coursery.co'
+FAQ_URL: 'https://support.edx.org/hc/en-us/sections/4408224345879'
+DELETE_ACCOUNT_URL: 'https://account.edx.org/#delete-account'
+ECOMMERCE_URL: 'https://ecommerce.edx.org'
+DISCOVERY:
+  TYPE: webview
+  WEBVIEW:
+    BASE_URL: 'https://coursery.co/courses?search'
+    COURSE_DETAIL_TEMPLATE: 'https://coursery.co/course/{path_id}'
+    PROGRAM_DETAIL_TEMPLATE: 'https://coursery.co/{path_id}'
+PROGRAM:
+  ENABLED: false
+YOUTUBE_PLAYER:
+  ENABLED: true
+  API_KEY: 'AIzaSyCyAXWx3UjvTtQt_3oU7d8j_nTOpDoZMS4'
+AGREEMENT_URLS:
+  PRIVACY_POLICY_URL: 'https://www.edx.org/webview/edx-privacy-policy'
+  TOS_URL: 'https://www.edx.org/webview/edx-terms-service'
+  EULA_URL: 'https://www.edx.org/webview/eula'
+  SUPPORTED_LANGUAGES:
+  - 'es'
+ANNOUNCEMENTS_ENABLED: true
+BADGES_ENABLED: false
+CERTIFICATES_ENABLED: true
+COURSE_DATES_ENABLED: true
+COURSE_SHARING_ENABLED: true
+COURSE_VIDEOS_ENABLED: true
+DISCUSSIONS_ENABLED: true
+DISCUSSIONS_ENABLE_PROFILE_PICTURE_PARAM: true
+PUSH_NOTIFICATIONS: true
+NEW_LOGISTRATION_ENABLED: true
+REGISTRATION_ENABLED: true
+TAB_LAYOUTS_ENABLED: true
+USER_PROFILES_ENABLED: true
+VIDEO_TRANSCRIPT_ENABLED: true
+WHATS_NEW_ENABLED: true
+IAP_ENABLED: false
+FACEBOOK:
+  ENABLED: true
+  FACEBOOK_APP_ID: '1518363378406228'
+FIREBASE:
+  ENABLED: true
+  ANALYTICS_SOURCE: 'firebase'
+  CLOUD_MESSAGING_ENABLED: true
+  PROJECT_NUMBER: '157808860388'
+  PROJECT_ID: 'democoedx'
+  OAUTH_CLIENT_ID: '865480929089-a7ur79jpk7ts2kgukfr0risor5dtbc9b.apps.googleusercontent.com'
+  CURRENT_KEY: 'AIzaSyB4zlD57YG1OjzbbC9GJy4vXenNdA9WpJ4'
+  MOBILE_SDK_APP_ID: '1:157808860388:android:ef5b2278980eeb7f3b20f1'
+GOOGLE:
+  ENABLED: true
+OAUTH_CLIENT_ID: 'android'
+APP_UPDATE_URIS:
+  - 'market://details?id={application_id}'
+  - 'https://play.google.com/store/apps/details?id={application_id}'
+APP_REVIEWS_ENABLED: true
+DOWNLOAD_TO_SD_CARD_ENABLED: true
