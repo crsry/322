@@ -114,6 +114,7 @@ class CourseModalDialogFragment : DialogFragment() {
         iapAnalytics.initCourseValues(
             courseId = courseId,
             isSelfPaced = isSelfPaced,
+            flowType = IAPFlowData.IAPFlowType.USER_INITIATED.toString(),
             screenName = screenName
         )
         environment.analyticsRegistry.trackValuePropLearnMoreTapped(courseId, screenName)

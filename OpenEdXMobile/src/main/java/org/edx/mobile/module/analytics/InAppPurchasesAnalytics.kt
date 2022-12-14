@@ -11,6 +11,7 @@ class InAppPurchasesAnalytics @Inject constructor(
 ) {
     private var courseId: String = ""
     private var isSelfPaced: Boolean = false
+    private var flowType: String = ""
     private var screenName: String = ""
     private var componentId: String = ""
     private var price: String = ""
@@ -24,13 +25,15 @@ class InAppPurchasesAnalytics @Inject constructor(
     private var actionTaken: String = ""
 
     fun initCourseValues(
-        courseId: String,
-        isSelfPaced: Boolean,
-        screenName: String,
+        courseId: String = "",
+        isSelfPaced: Boolean = false,
+        flowType: String = "",
+        screenName: String = "",
         componentId: String = ""
     ) {
         this.courseId = courseId
         this.isSelfPaced = isSelfPaced
+        this.flowType = flowType
         this.screenName = screenName
         this.componentId = componentId
         this.price = ""
@@ -67,20 +70,26 @@ class InAppPurchasesAnalytics @Inject constructor(
                 trackEvent(eventName, Analytics.Values.IAP_UPGRADE_NOW_CLICKED)
                 upgradeCourseTime = getCurrentTime()
             }
+            Analytics.Events.IAP_RESTORE_PURCHASE_CLICKED -> {
+                trackEvent(eventName, Analytics.Values.IAP_RESTORE_PURCHASE_CLICKED)
+            }
+            Analytics.Events.IAP_UNFULFILLED_PURCHASE_INITIATED -> {
+                trackEvent(eventName, Analytics.Values.IAP_UNFULFILLED_PURCHASE_INITIATED, flowType)
+            }
             Analytics.Events.IAP_COURSE_UPGRADE_SUCCESS -> {
                 elapsedTime = getCurrentTime() - upgradeCourseTime
-                trackEvent(eventName, Analytics.Values.IAP_COURSE_UPGRADE_SUCCESS)
+                trackEvent(eventName, Analytics.Values.IAP_COURSE_UPGRADE_SUCCESS, flowType)
                 upgradeCourseTime = 0
             }
             Analytics.Events.IAP_UNLOCK_UPGRADED_CONTENT_TIME -> {
                 elapsedTime = getCurrentTime() - unlockContentTime
-                trackEvent(eventName, Analytics.Values.IAP_UNLOCK_UPGRADED_CONTENT_TIME)
+                trackEvent(eventName, Analytics.Values.IAP_UNLOCK_UPGRADED_CONTENT_TIME, flowType)
                 unlockContentTime = 0
             }
             Analytics.Events.IAP_UNLOCK_UPGRADED_CONTENT_REFRESH_TIME -> {
                 if (refreshContentTime > 0) {
                     elapsedTime = getCurrentTime() - refreshContentTime
-                    trackEvent(eventName, Analytics.Values.IAP_UNLOCK_UPGRADED_CONTENT_REFRESH_TIME)
+                    trackEvent(eventName, Analytics.Values.IAP_UNLOCK_UPGRADED_CONTENT_REFRESH_TIME, flowType)
                     refreshContentTime = 0
                 }
             }
@@ -100,7 +109,7 @@ class InAppPurchasesAnalytics @Inject constructor(
             }
             Analytics.Events.IAP_COURSE_UPGRADE_ERROR -> {
                 this.errorMsg = errorMsg
-                trackEvent(eventName, Analytics.Values.IAP_COURSE_UPGRADE_ERROR)
+                trackEvent(eventName, Analytics.Values.IAP_COURSE_UPGRADE_ERROR, flowType)
             }
             Analytics.Events.IAP_PRICE_LOAD_ERROR -> {
                 this.errorMsg = errorMsg
@@ -109,7 +118,15 @@ class InAppPurchasesAnalytics @Inject constructor(
             Analytics.Events.IAP_ERROR_ALERT_ACTION -> {
                 this.errorMsg = errorMsg
                 this.actionTaken = actionTaken
-                trackEvent(eventName, Analytics.Values.IAP_ERROR_ALERT_ACTION)
+                trackEvent(eventName, Analytics.Values.IAP_ERROR_ALERT_ACTION, flowType)
+            }
+            Analytics.Events.IAP_NEW_EXPERIENCE_ALERT_ACTION -> {
+                this.actionTaken = actionTaken
+                trackEvent(eventName, Analytics.Values.IAP_NEW_EXPERIENCE_ALERT_ACTION, flowType)
+            }
+            Analytics.Events.IAP_RESTORE_SUCCESS_ALERT_ACTION -> {
+                this.actionTaken = actionTaken
+                trackEvent(eventName, Analytics.Values.IAP_RESTORE_SUCCESS_ALERT_ACTION)
             }
         }
         resetEventValues()
@@ -132,12 +149,23 @@ class InAppPurchasesAnalytics @Inject constructor(
         actionTaken = ""
     }
 
-    private fun trackEvent(eventName: String, biValue: String) =
+    fun reset() {
+        courseId = ""
+        isSelfPaced = false
+        flowType = ""
+        screenName = ""
+        componentId = ""
+        price = ""
+        resetAnalytics()
+    }
+
+    private fun trackEvent(eventName: String, biValue: String, flowType: String? = null) =
         environment.analyticsRegistry.trackInAppPurchasesEvent(
             eventName,
             biValue,
             courseId,
             isSelfPaced,
+            flowType,
             price,
             componentId,
             elapsedTime,

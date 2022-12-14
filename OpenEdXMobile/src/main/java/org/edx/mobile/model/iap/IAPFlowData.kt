@@ -5,6 +5,8 @@ data class IAPFlowData(
     var productId: String = "",
     var basketId: Long = 0,
     var purchaseToken: String = "",
+    var flowType: String = "",
+    var screenName: String = "",
     var isVerificationPending: Boolean = false
 ) {
     fun clear() {
@@ -13,6 +15,8 @@ data class IAPFlowData(
         basketId = 0
         purchaseToken = ""
         isVerificationPending = false
+        flowType = ""
+        screenName = ""
     }
 
     enum class UpgradeMode {
@@ -25,5 +29,11 @@ data class IAPFlowData(
     enum class IAPAction {
         SHOW_FULL_SCREEN_LOADER,
         PURCHASE_FLOW_COMPLETE
+    }
+
+    enum class IAPFlowType(flowType: String) {
+        RESTORE("restore"),
+        SILENT("silent"),
+        USER_INITIATED("user_initiated");
     }
 }

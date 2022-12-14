@@ -202,7 +202,12 @@ class InAppPurchasesViewModel @Inject constructor(
      * @param userId: id of the user to detect un full filled purchases and process.
      * @return enrolledCourses user enrolled courses in the platform.
      */
-    fun detectUnfulfilledPurchase(userId: Long, enrolledCourses: List<EnrolledCoursesResponse>) {
+    fun detectUnfulfilledPurchase(
+        userId: Long,
+        enrolledCourses: List<EnrolledCoursesResponse>,
+        flowType: String,
+        screenName: String
+    ) {
         val auditCoursesSku = enrolledCourses.getAuditCoursesSku()
         if (auditCoursesSku.isEmpty()) {
             _fakeUnfulfilledCompletion.postValue(true)
@@ -224,7 +229,7 @@ class InAppPurchasesViewModel @Inject constructor(
                 if (incompletePurchases.isEmpty()) {
                     _fakeUnfulfilledCompletion.postValue(true)
                 } else {
-                    startUnfulfilledVerification()
+                    startUnfulfilledVerification(flowType, screenName)
                 }
             } else {
                 _fakeUnfulfilledCompletion.postValue(true)
@@ -235,12 +240,21 @@ class InAppPurchasesViewModel @Inject constructor(
     /**
      * Method to start the process to verify the un full filled courses skus
      */
-    private fun startUnfulfilledVerification() {
+    private fun startUnfulfilledVerification(flowType: String, screenName: String) {
         iapFlowData.upgradeMode = IAPFlowData.UpgradeMode.SILENT
         iapFlowData.productId = incompletePurchases[0].first
         iapFlowData.purchaseToken = incompletePurchases[0].second
         // will perform verification as part of unfulfilled flow
         iapFlowData.isVerificationPending = false
+        iapFlowData.flowType = flowType
+        iapFlowData.screenName = screenName
+        iapAnalytics.initCourseValues(
+            courseId = "",
+            isSelfPaced = false,
+            flowType = flowType,
+            screenName = screenName
+        )
+        iapAnalytics.trackIAPEvent(Analytics.Events.IAP_UNFULFILLED_PURCHASE_INITIATED)
         addProductToBasket()
     }
 
@@ -249,7 +263,7 @@ class InAppPurchasesViewModel @Inject constructor(
         if (incompletePurchases.isEmpty()) {
             _refreshCourseData.postValue(iapFlowData)
         } else {
-            startUnfulfilledVerification()
+            startUnfulfilledVerification(iapFlowData.flowType, iapFlowData.screenName)
         }
     }
 

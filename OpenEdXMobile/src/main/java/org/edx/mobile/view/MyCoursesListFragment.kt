@@ -142,9 +142,12 @@ class MyCoursesListFragment : OfflineSupportBaseFragment(), RefreshListener {
                 populateCourseData(data = enrolledCourses)
                 if (environment.appFeaturesPrefs.isIAPEnabled(environment.loginPrefs.isOddUserId)) {
                     initInAppPurchaseSetup()
+                    iapAnalytics.reset()
                     iapViewModel.detectUnfulfilledPurchase(
                         environment.loginPrefs.userId,
-                        enrolledCourses
+                        enrolledCourses,
+                        IAPFlowData.IAPFlowType.SILENT.toString(),
+                        Analytics.Screens.COURSE_ENROLLMENT
                     )
                 }
             })
@@ -189,8 +192,17 @@ class MyCoursesListFragment : OfflineSupportBaseFragment(), RefreshListener {
     private fun initIAPObservers() {
         iapViewModel.refreshCourseData.observe(viewLifecycleOwner, NonNullObserver { iapFlowData ->
             iapDialog.showNewExperienceAlertDialog(this, { _, _ ->
+                iapAnalytics.trackIAPEvent(
+                    eventName = Analytics.Events.IAP_NEW_EXPERIENCE_ALERT_ACTION,
+                    actionTaken = Analytics.Values.ACTION_REFRESH
+                )
                 showFullscreenLoader(iapFlowData)
-            }, { _, _ -> })
+            }, { _, _ ->
+                iapAnalytics.trackIAPEvent(
+                    eventName = Analytics.Events.IAP_NEW_EXPERIENCE_ALERT_ACTION,
+                    actionTaken = Analytics.Values.ACTION_CONTINUE_WITHOUT_UPDATE
+                )
+            })
         })
         iapViewModel.errorMessage.observe(viewLifecycleOwner, NonNullObserver { errorMessage ->
             var cancelListener: DialogInterface.OnClickListener? = null
